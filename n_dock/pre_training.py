@@ -13,7 +13,7 @@ def pre_train(pretrain_config):
     pretrain_config (dict): A dictionary containing configuration parameters.
     
     Returns:
-    The pre-trained model.
+    tuple: The pre-trained model and a function to generate embeddings.
     """
     # Data preparation
     data_config = {
@@ -70,4 +70,11 @@ def pre_train(pretrain_config):
         avg_loss = total_loss / len(dataloader)
         print(f'Epoch [{epoch+1}/{num_epochs}], Average Loss: {avg_loss:.4f}')
     
-    return model
+    def get_embedding(input_data):
+        model.eval()
+        with torch.no_grad():
+            # Remove the last layer (assuming it's a classification layer)
+            embedding = nn.Sequential(*list(model.children())[:-1])(input_data)
+            return embedding.view(embedding.size(0), -1)  # Flatten the embedding
+
+    return model, get_embedding
