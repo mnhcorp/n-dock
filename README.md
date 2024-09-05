@@ -1,6 +1,6 @@
-# NeuroDock
+# n-dock
 
-**NeuroDock** is an open-source, Docker-based foundation model pre-training platform designed to be modality-agnostic and domain-agnostic. It provides a flexible and extensible system for training and fine-tuning foundation models across any data type (text, images, audio, etc.), all within a fully customizable architecture.
+**n-dock** is an open-source, Docker-based foundation model pre-training platform designed to be modality-agnostic and domain-agnostic. It provides a flexible and extensible system for training and fine-tuning foundation models across any data type (text, images, audio, etc.), all within a fully customizable architecture.
 
 ## Features
 
@@ -62,7 +62,7 @@ Here’s a simple example of how to use **NeuroDock** for pre-training a model o
 ### Step 1: Ingest Data
 Use the `data_ingest` API to load your dataset.
 ```python
-import neurodock
+import n_dock
 
 # Example for image data
 data_config = {
@@ -71,7 +71,8 @@ data_config = {
   "image_size": 224
 }
 
-neurodock.data_ingest(data_config)
+ingested_data = n_dock.data_ingest(data_config)
+print(f"Ingested data shape: {ingested_data.shape}")
 ```
 
 ### Step 2: Choose a Pre-training Architecture
