@@ -40,11 +40,18 @@ class TestDataIngestion(unittest.TestCase):
         }
         result = data_ingest(config)
         
-        # Check if the result is a torch.Tensor
-        self.assertIsInstance(result, torch.Tensor)
+        # Check if the result is a Dataset
+        self.assertIsInstance(result, torch.utils.data.Dataset)
         
-        # Check if the shape is correct
-        self.assertEqual(result.shape, (self.num_images, 3, 224, 224))
+        # Check if the dataset has the correct length
+        self.assertEqual(len(result), self.num_images)
+        
+        # Check if the first item has the correct format
+        first_item = result[0]
+        self.assertIn('image', first_item)
+        self.assertIn('label', first_item)
+        self.assertIsInstance(first_item['image'], torch.Tensor)
+        self.assertEqual(first_item['image'].shape, (3, 224, 224))
 
     def test_invalid_data_type(self):
         config = {

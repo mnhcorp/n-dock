@@ -5,33 +5,45 @@ from torch.utils.data import DataLoader
 from n_dock.models.simple_cnn import SimpleCNN
 from n_dock.data_ingestion import data_ingest
 
-def pre_train(config):
+def pre_train(pretrain_config):
     """
-    Pre-train a simple CNN foundation model using ingested data.
+    Pre-train a foundation model using ingested data.
     
     Args:
-    config (dict): A dictionary containing configuration parameters.
+    pretrain_config (dict): A dictionary containing configuration parameters.
     
     Returns:
     The pre-trained model.
     """
     # Data preparation
-    dataset = data_ingest(config)
-    dataloader = DataLoader(dataset, batch_size=config.get('batch_size', 32), shuffle=True, num_workers=4)
+    data_config = {
+        'data_type': pretrain_config['modality'],
+        'data_path': pretrain_config.get('data_path', './data'),
+        'image_size': pretrain_config.get('image_size', 224)
+    }
+    dataset = data_ingest(data_config)
+    dataloader = DataLoader(dataset, batch_size=pretrain_config.get('batch_size', 32), shuffle=True, num_workers=4)
     
     # Model initialization
-    model = SimpleCNN(
-        in_channels=config.get('in_channels', 3),
-        base_filters=config.get('base_filters', 16),
-        n_blocks=config.get('n_blocks', 4)
-    )
+    if pretrain_config['architecture'] == 'SimpleCNN':
+        model = SimpleCNN(
+            in_channels=3,
+            base_filters=pretrain_config.get('base_filters', 16),
+            n_blocks=pretrain_config.get('n_blocks', 4)
+        )
+    elif pretrain_config['architecture'] == 'CLIP':
+        raise NotImplementedError("CLIP architecture not yet implemented")
+    elif pretrain_config['architecture'] == 'DINOv2':
+        raise NotImplementedError("DINOv2 architecture not yet implemented")
+    else:
+        raise ValueError(f"Unsupported architecture: {pretrain_config['architecture']}")
     
     # Loss function and optimizer
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=config.get('learning_rate', 0.001))
+    optimizer = optim.Adam(model.parameters(), lr=pretrain_config.get('learning_rate', 0.001))
     
     # Training loop
-    num_epochs = config.get('epochs', 10)
+    num_epochs = pretrain_config.get('epochs', 10)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.to(device)
     

@@ -39,17 +39,31 @@ def ingest_image_data(data_path, image_size=224):
     
     return torch.stack(images)
 
-def data_ingest(config):
+def data_ingest(data_config):
     """
     Main data ingestion function that handles different data types.
     
     Args:
-    config (dict): A dictionary containing configuration parameters.
+    data_config (dict): A dictionary containing configuration parameters.
     
     Returns:
-    The ingested data in an appropriate format.
+    A dataset object compatible with PyTorch DataLoader.
     """
-    if config['data_type'] == 'image':
-        return ingest_image_data(config['data_path'], config.get('image_size', 224))
+    if data_config['data_type'] == 'image':
+        data = ingest_image_data(data_config['data_path'], data_config.get('image_size', 224))
+        return ImageDataset(data)
+    elif data_config['data_type'] == 'text':
+        # Placeholder for text data ingestion
+        raise NotImplementedError("Text data ingestion not yet implemented")
     else:
-        raise ValueError(f"Unsupported data type: {config['data_type']}")
+        raise ValueError(f"Unsupported data type: {data_config['data_type']}")
+
+class ImageDataset(torch.utils.data.Dataset):
+    def __init__(self, data):
+        self.data = data
+
+    def __len__(self):
+        return len(self.data)
+
+    def __getitem__(self, idx):
+        return {'image': self.data[idx], 'label': 0}  # Placeholder label

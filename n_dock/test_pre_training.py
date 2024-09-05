@@ -87,11 +87,21 @@ class TestPreTraining(unittest.TestCase):
         mock_dataset = MockDataset()
         mock_data_ingest.return_value = mock_dataset
 
+        # Update mock_config to match new API
+        self.mock_config['architecture'] = 'SimpleCNN'
+        self.mock_config['modality'] = 'image'
+        self.mock_config['data_path'] = './data'
+
         # Run pre_train
         model = pre_train(self.mock_config)
 
         # Assert that data_ingest was called with the correct config
-        mock_data_ingest.assert_called_once_with(self.mock_config)
+        expected_data_config = {
+            'data_type': 'image',
+            'data_path': './data',
+            'image_size': 224
+        }
+        mock_data_ingest.assert_called_once_with(expected_data_config)
 
         # Assert that the model is an instance of SimpleCNN
         self.assertIsInstance(model, torch.nn.Module)
