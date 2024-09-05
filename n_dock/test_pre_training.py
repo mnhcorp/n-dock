@@ -93,7 +93,7 @@ class TestPreTraining(unittest.TestCase):
         self.mock_config['data_path'] = './data'
 
         # Run pre_train
-        model = pre_train(self.mock_config)
+        model, get_embedding = pre_train(self.mock_config)
 
         # Assert that data_ingest was called with the correct config
         expected_data_config = {
@@ -111,13 +111,13 @@ class TestPreTraining(unittest.TestCase):
         self.assertGreater(expected_params, 0)
 
         # Test get_embedding function
-        self.assertTrue(hasattr(model, 'get_embedding'), "Model should have get_embedding method")
+        self.assertTrue(callable(get_embedding), "get_embedding should be a callable function")
         
         # Create a dummy input
         dummy_input = torch.randn(1, 3, 224, 224)
         
         # Get embedding
-        embedding = model.get_embedding(dummy_input)
+        embedding = get_embedding(dummy_input)
         
         # Check if embedding is a tensor
         self.assertIsInstance(embedding, torch.Tensor, "Embedding should be a torch.Tensor")
