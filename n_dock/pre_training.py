@@ -2,12 +2,12 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
-from torchvision import datasets, transforms
 from n_dock.models.simple_cnn import SimpleCNN
+from n_dock.data_ingestion import data_ingest
 
 def pre_train(config):
     """
-    Pre-train a simple CNN foundation model using ImageNet data.
+    Pre-train a simple CNN foundation model using ingested data.
     
     Args:
     config (dict): A dictionary containing configuration parameters.
@@ -16,14 +16,7 @@ def pre_train(config):
     The pre-trained model.
     """
     # Data preparation
-    transform = transforms.Compose([
-        transforms.Resize(256),
-        transforms.CenterCrop(224),
-        transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-    ])
-    
-    dataset = datasets.ImageNet(root=config['data_path'], split='train', transform=transform)
+    dataset = data_ingest(config)
     dataloader = DataLoader(dataset, batch_size=config.get('batch_size', 32), shuffle=True, num_workers=4)
     
     # Model initialization
@@ -45,8 +38,8 @@ def pre_train(config):
     for epoch in range(num_epochs):
         model.train()
         total_loss = 0
-        for batch_idx, (data, target) in enumerate(dataloader):
-            data, target = data.to(device), target.to(device)
+        for batch_idx, batch in enumerate(dataloader):
+            data, target = batch['image'].to(device), batch['label'].to(device)
             
             # Forward pass
             output = model(data)
