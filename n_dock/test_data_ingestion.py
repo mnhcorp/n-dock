@@ -3,7 +3,7 @@ import os
 import tempfile
 from PIL import Image
 import torch
-from data_ingestion import ingest_image_data, data_ingest
+from n_dock.data_ingestion import ingest_image_data, data_ingest
 
 class TestDataIngestion(unittest.TestCase):
     def setUp(self):
