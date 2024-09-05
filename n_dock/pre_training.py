@@ -70,11 +70,13 @@ def pre_train(pretrain_config):
         avg_loss = total_loss / len(dataloader)
         print(f'Epoch [{epoch+1}/{num_epochs}], Average Loss: {avg_loss:.4f}')
     
-    def get_embedding(input_data):
-        model.eval()
-        with torch.no_grad():
-            # Remove the last layer (assuming it's a classification layer)
-            embedding = nn.Sequential(*list(model.children())[:-1])(input_data)
-            return embedding.view(embedding.size(0), -1)  # Flatten the embedding
-
+    
+    def get_embedding(input_data, model):
+        model.eval()  # Set the model to evaluation mode
+        with torch.no_grad():  # Disable gradient calculation
+            embedding = model(input_data)  # Pass input data through the model
+            # flatten to 1D
+            embedding = embedding.view(embedding.size(0), -1)
+            return embedding  # Return the output of the last layer
+            
     return model, get_embedding

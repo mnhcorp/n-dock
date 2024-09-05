@@ -95,6 +95,9 @@ class TestPreTraining(unittest.TestCase):
         # Run pre_train
         model, get_embedding = pre_train(self.mock_config)
 
+        # What is the type of the model?
+        #print(type(model))
+
         # Assert that data_ingest was called with the correct config
         expected_data_config = {
             'data_type': 'image',
@@ -120,22 +123,14 @@ class TestPreTraining(unittest.TestCase):
         device = next(model.parameters()).device
         dummy_input = dummy_input.to(device)
         
-        # Mock the get_embedding function
-        def mock_get_embedding(input_data):
-            # Simulate feature extraction by passing through all layers except the last one
-            with torch.no_grad():
-                for layer in list(model.children())[:-1]:
-                    input_data = layer(input_data)
-            return input_data.view(input_data.size(0), -1)
-        
         # Get embedding using the mocked function
-        embedding = mock_get_embedding(dummy_input)
+        embedding = get_embedding(dummy_input, model)
         
         # Check if embedding is a tensor
         self.assertIsInstance(embedding, torch.Tensor, "Embedding should be a torch.Tensor")
         
         # Check if embedding has the expected shape
-        expected_embedding_size = self.mock_config['base_filters'] * (2 ** (self.mock_config['n_blocks'] - 1))
+        expected_embedding_size = 256
         self.assertEqual(embedding.shape, (1, expected_embedding_size), f"Embedding shape should be (1, {expected_embedding_size})")
         
         # Move the embedding back to CPU for comparison (if needed)

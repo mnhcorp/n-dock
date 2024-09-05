@@ -1,7 +1,7 @@
 # Configuration file for n_dock project
 
 config = {
-    'data_path': '/path/to/your/data',  # Replace with the actual path to your data
+    'data_path': '/data/n-dock',  # Replace with the actual path to your data
     # Add other configuration parameters as needed
 }
 
