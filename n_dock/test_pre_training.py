@@ -110,5 +110,21 @@ class TestPreTraining(unittest.TestCase):
         expected_params = sum(p.numel() for p in model.parameters())
         self.assertGreater(expected_params, 0)
 
+        # Test get_embedding function
+        self.assertTrue(hasattr(model, 'get_embedding'), "Model should have get_embedding method")
+        
+        # Create a dummy input
+        dummy_input = torch.randn(1, 3, 224, 224)
+        
+        # Get embedding
+        embedding = model.get_embedding(dummy_input)
+        
+        # Check if embedding is a tensor
+        self.assertIsInstance(embedding, torch.Tensor, "Embedding should be a torch.Tensor")
+        
+        # Check if embedding has the expected shape (assuming the last layer before classification is the embedding)
+        expected_embedding_size = self.mock_config['base_filters'] * (2 ** (self.mock_config['n_blocks'] - 1))
+        self.assertEqual(embedding.shape, (1, expected_embedding_size), f"Embedding shape should be (1, {expected_embedding_size})")
+
 if __name__ == '__main__':
     unittest.main()
