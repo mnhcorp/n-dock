@@ -51,3 +51,54 @@ class TestPreTraining(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+import unittest
+from unittest.mock import patch, MagicMock
+import torch
+from torch.utils.data import Dataset
+from n_dock.pre_training import pre_train
+
+class MockDataset(Dataset):
+    def __init__(self, size=100):
+        self.size = size
+
+    def __len__(self):
+        return self.size
+
+    def __getitem__(self, idx):
+        return {
+            'image': torch.randn(3, 224, 224),
+            'label': torch.randint(0, 10, (1,)).item()
+        }
+
+class TestPreTraining(unittest.TestCase):
+    def setUp(self):
+        self.mock_config = {
+            'batch_size': 32,
+            'in_channels': 3,
+            'base_filters': 16,
+            'n_blocks': 4,
+            'learning_rate': 0.001,
+            'epochs': 2
+        }
+
+    @patch('n_dock.pre_training.data_ingest')
+    def test_pre_train(self, mock_data_ingest):
+        # Mock the data_ingest function
+        mock_dataset = MockDataset()
+        mock_data_ingest.return_value = mock_dataset
+
+        # Run pre_train
+        model = pre_train(self.mock_config)
+
+        # Assert that data_ingest was called with the correct config
+        mock_data_ingest.assert_called_once_with(self.mock_config)
+
+        # Assert that the model is an instance of SimpleCNN
+        self.assertIsInstance(model, torch.nn.Module)
+
+        # Assert that the model has the correct number of parameters
+        expected_params = sum(p.numel() for p in model.parameters())
+        self.assertGreater(expected_params, 0)
+
+if __name__ == '__main__':
+    unittest.main()
