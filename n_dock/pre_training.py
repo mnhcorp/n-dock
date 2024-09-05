@@ -6,7 +6,7 @@ from n_dock.data_ingestion import data_ingest
 
 def pre_train(config):
     """
-    Pre-train a simple CNN model for image classification.
+    Pre-train a simple CNN foundation model.
     
     Args:
     config (dict): A dictionary containing configuration parameters.
@@ -18,10 +18,14 @@ def pre_train(config):
     data = data_ingest(config['data_config'])
     
     # Model initialization
-    model = SimpleCNN(num_classes=config.get('num_classes', 10))
+    model = SimpleCNN(
+        in_channels=config.get('in_channels', 3),
+        base_filters=config.get('base_filters', 16),
+        n_blocks=config.get('n_blocks', 4)
+    )
     
     # Loss function and optimizer
-    criterion = nn.CrossEntropyLoss()
+    criterion = nn.MSELoss()  # Using MSE for self-supervised learning
     optimizer = optim.Adam(model.parameters(), lr=config.get('learning_rate', 0.001))
     
     # Training loop
@@ -29,18 +33,24 @@ def pre_train(config):
     batch_size = config.get('batch_size', 32)
     
     for epoch in range(num_epochs):
+        total_loss = 0
         for i in range(0, len(data), batch_size):
             batch = data[i:i+batch_size]
             
             # Forward pass
-            outputs = model(batch)
-            loss = criterion(outputs, torch.zeros(batch.size(0)).long())  # Dummy labels
+            embeddings = model(batch)
+            
+            # Self-supervised learning: reconstruct the input
+            loss = criterion(embeddings, batch.view(batch.size(0), -1))
             
             # Backward pass and optimize
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
+            
+            total_loss += loss.item()
         
-        print(f'Epoch [{epoch+1}/{num_epochs}], Loss: {loss.item():.4f}')
+        avg_loss = total_loss / (len(data) // batch_size)
+        print(f'Epoch [{epoch+1}/{num_epochs}], Average Loss: {avg_loss:.4f}')
     
     return model
