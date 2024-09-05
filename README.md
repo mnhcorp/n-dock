@@ -10,6 +10,14 @@
 - **Customizable Pre-training:** Full control over architecture, hyperparameters, and training fidelity.
 - **API for Data Ingestion and Pre-training:** Simple APIs to ingest data and tweak model training parameters.
 
+### Initial Implementation Features
+
+1. **Basic Data Ingestion:** Support for ingesting image data as a starting point.
+2. **Simple Pre-training Configuration:** Easy setup for pre-training a basic CNN model for image classification.
+3. **Model Persistence:** Save and load pre-trained models for future use or fine-tuning.
+4. **Training Progress Tracking:** Basic logging and progress updates during the pre-training process.
+5. **Simple Evaluation:** Implement basic evaluation metrics to assess the pre-trained model's performance.
+
 ---
 
 ## Table of Contents
